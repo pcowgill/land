@@ -9,7 +9,9 @@ const assert = (condition, message) => {
 }
 
 const run = async () => {
-  const filename = './ops/config.testnet.json'
+  const filename = '' // example: ops/config.testnet.json
+  assert(filename, 'Missing config filename')
+
   const input = utils.readJSON(filename)
 
   assert(input.MANATokenAddress, 'Missing MANAToken address')
