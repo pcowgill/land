@@ -25,7 +25,7 @@ const run = async () => {
     input.MANATokenAddress,
     input.terraformReserveAddress,
     input.returnVestingRegistryAddress,
-    {gas: 4000000, gasPrice: 100e9}
+    {gas: 4700000, gasPrice: 10e9}
   )
   console.log(`Deployed contract: ${sale.address}`)
 }
