@@ -16,6 +16,7 @@ contract BasicNFT is NFT, NFTEvents {
 
   // Allowed transfers for a token (only one at a time)
   mapping(uint => address) public allowedTransfer;
+  mapping(address => address) public allowAll;
 
   // Metadata associated with each token
   mapping(uint => string) public _tokenMetadata;
@@ -47,12 +48,14 @@ contract BasicNFT is NFT, NFTEvents {
   }
 
   function transfer(address to, uint tokenId) public {
-    require(tokenOwner[tokenId] == msg.sender || allowedTransfer[tokenId] == msg.sender);
+    require(tokenOwner[tokenId] == msg.sender
+      || allowedTransfer[tokenId] == msg.sender
+      || allowAll[tokenOwner[tokenId]] == msg.sender);
     return _transfer(tokenOwner[tokenId], to, tokenId);
   }
 
   function takeOwnership(uint tokenId) public {
-    require(allowedTransfer[tokenId] == msg.sender);
+    require(allowedTransfer[tokenId] == msg.sender || allowAll[tokenOwner[tokenId]] == msg.sender);
     return _transfer(tokenOwner[tokenId], msg.sender, tokenId);
   }
 
@@ -69,6 +72,10 @@ contract BasicNFT is NFT, NFTEvents {
     }
     allowedTransfer[tokenId] = beneficiary;
     Approval(tokenOwner[tokenId], beneficiary, tokenId);
+  }
+
+  function approveAll(address beneficiary) public {
+    allowAll[msg.sender] = beneficiary;
   }
 
   function tokenMetadata(uint tokenId) constant public returns (string) {
