@@ -24,3 +24,4 @@ contract NFTEvents {
 
   event MetadataUpdated(uint tokenId, address owner, string data);
 }
+
