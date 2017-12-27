@@ -1,24 +1,31 @@
 pragma solidity ^0.4.15;
 
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
-import './BasicNFT.sol';
+import './NFT/FullNFT.sol';
 
-contract LANDToken is Ownable, BasicNFT {
+contract LANDToken is Ownable, FullNFT {
 
   string public name = 'Decentraland World';
   string public symbol = 'LAND';
 
-  mapping (uint => uint) public latestPing;
+  mapping (address => uint) public latestPing;
 
-  event Ping(uint tokenId);
+  event Ping(address user);
 
-  function assignNewParcel(address beneficiary, uint tokenId, string _metadata) onlyOwner public {
+  function assignNewParcel(
+    address beneficiary,
+    uint tokenId,
+    string _metadata
+  ) onlyOwner public {
     require(tokenOwner[tokenId] == 0);
     _assignNewParcel(beneficiary, tokenId, _metadata);
   }
 
-  function _assignNewParcel(address beneficiary, uint tokenId, string _metadata) internal {
-    latestPing[tokenId] = now;
+  function _assignNewParcel(
+    address beneficiary,
+    uint tokenId,
+    string _metadata
+  ) internal {
     _addTokenTo(beneficiary, tokenId);
     totalTokens++;
     _tokenMetadata[tokenId] = _metadata;
@@ -26,16 +33,14 @@ contract LANDToken is Ownable, BasicNFT {
     Created(tokenId, beneficiary, _metadata);
   }
 
-  function ping(uint tokenId) public {
-    require(msg.sender == tokenOwner[tokenId]);
-
-    latestPing[tokenId] = now;
-
-    Ping(tokenId);
+  function ping() public {
+    latestPing[msg.sender] = now;
+    Ping(msg.sender);
   }
 
   function buildTokenId(uint x, uint y) public constant returns (uint256) {
-    return uint256(sha3(x, '|', y));
+    uint result = ((x << 128) & (2**128 - 1)) | (y & (2**128));
+    return result;
   }
 
   function exists(uint x, uint y) public constant returns (bool) {
@@ -72,15 +77,12 @@ contract LANDToken is Ownable, BasicNFT {
     }
   }
 
-  function claimForgottenParcel(address beneficiary, uint tokenId) onlyOwner public {
-    require(tokenOwner[tokenId] != 0);
-    require(latestPing[tokenId] < now);
-    require(now - latestPing[tokenId] > 1 years);
-
-    address oldOwner = tokenOwner[tokenId];
-    latestPing[tokenId] = now;
-    _transfer(oldOwner, beneficiary, tokenId);
-
-    Transferred(tokenId, oldOwner, beneficiary);
+  function dropLostLand(address owner, uint[] tokens) onlyOwner public {
+    require(now - latestPing[owner] > 1 years);
+    for (uint i = 0; i < tokens.length; i++) {
+      require(ownerOf(tokens[i]) == owner);
+      _transfer(owner, 0, tokenId);
+      Transfer(owner, 0, tokenId);
+    }
   }
 }

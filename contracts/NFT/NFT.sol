@@ -11,17 +11,10 @@ contract NFT {
   function takeOwnership(uint tokenId);
   function transferFrom(address from, address to, uint tokenId);
   function approve(address beneficiary, uint tokenId);
-
-  function metadata(uint tokenId) constant returns (string);
 }
 
 contract NFTEvents {
-  event Created(uint tokenId, address owner, string metadata);
-  event Destroyed(uint tokenId, address owner);
-
-  event Transferred(uint tokenId, address from, address to);
+  event Transfer(address from, address to, uint tokenId);
   event Approval(address owner, address beneficiary, uint tokenId);
-
-  event MetadataUpdated(uint tokenId, address owner, string data);
 }
 
