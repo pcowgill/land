@@ -30,8 +30,8 @@ contract EstateOwner is ERC721Holder, Ownable {
 
   // onERC721Received: Count
   function onERC721Received(
-    uint256 tokenId,
     address oldOwner,
+    uint256 tokenId,
     string // unused
   )
     public
@@ -49,7 +49,7 @@ contract EstateOwner is ERC721Holder, Ownable {
      */
     index[tokenId] = tokenIds.length;
 
-    return super.onERC721Received(tokenId, oldOwner, "");
+    return super.onERC721Received(oldOwner, tokenId, "");
   }
 
   function send(
