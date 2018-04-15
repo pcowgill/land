@@ -10,10 +10,14 @@ import 'erc821/contracts/FullAssetRegistry.sol';
 
 import './ILANDRegistry.sol';
 
+import './MetadataHolder.sol';
+
 contract LANDRegistry is Storage,
   Ownable, FullAssetRegistry,
   ILANDRegistry
 {
+
+  bytes4 public GET_METADATA = bytes4(keccak256("getMetadata(uint256)"));
 
   function initialize(bytes) public {
     _name = 'Decentraland LAND';
@@ -131,7 +135,32 @@ contract LANDRegistry is Storage,
     return (x, y);
   }
 
-  function landData(int x, int y) view public returns (string) {
+  function rawMetadata(uint256 assetId) public view returns (bytes32) {
+    address _owner = ownerOf(assetId);
+    if (_isContract(_owner)) {
+      if (ERC165(_owner).supportsInterface(GET_METADATA)) {
+        return MetadataHolder(_owner).getMetadata(assetId);
+      }
+    }
+    return 0;
+  }
+
+  function tokenMetadata(uint256 assetId) public view returns (string) {
+    address _owner = ownerOf(assetId);
+    if (_isContract(_owner)) {
+      if (ERC165(_owner).supportsInterface(GET_METADATA)) {
+        bytes32 metadata = MetadataHolder(_owner).getMetadata(assetId);
+        bytes memory bytesArray = new bytes(32);
+        for (uint256 i; i < 32; i++) {
+          bytesArray[i] = metadata[i];
+        }
+        return string(bytesArray);
+      }
+    }
+    return _assetData[assetId];
+  }
+
+  function landData(int x, int y) public view returns (string) {
     return tokenMetadata(encodeTokenId(x, y));
   }
 
@@ -166,7 +195,7 @@ contract LANDRegistry is Storage,
     uint256 assetId = encodeTokenId(x, y);
     _update(assetId, data);
 
-    Update(assetId, _holderOf[assetId], msg.sender, data);
+    emit Update(assetId, _holderOf[assetId], msg.sender, data);
   }
 
   function updateManyLandData(int[] x, int[] y, string data) public {
@@ -187,5 +216,11 @@ contract LANDRegistry is Storage,
   ) internal {
     updateOperator[assetId] = address(0);
     super._doTransferFrom(from, to, assetId, userData, operator, doCheck);
+  }
+
+  function _isContract(address addr) internal view returns (bool) {
+    uint size;
+    assembly { size := extcodesize(addr) }
+    return size > 0;
   }
 }

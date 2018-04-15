@@ -38,7 +38,7 @@ contract Proxy is Storage, DelegateProxy, Ownable {
     currentContract = newContract;
     IApplication(this).initialize(data);
 
-    Upgrade(newContract, data);
+    emit Upgrade(newContract, data);
   }
 
   //
