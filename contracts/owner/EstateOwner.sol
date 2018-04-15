@@ -100,6 +100,16 @@ contract EstateOwner is ERC721Holder, Ownable {
     dar.safeTransferFrom(this, destinatory, tokenId);
   }
 
+  function transferMany(
+    uint256[] tokens,
+    address destinatory
+  ) {
+    uint length = tokens.length;
+    for (uint i = 0; i < length; i++) {
+      send(tokens[i], destinatory);
+    }
+  }
+
   function size() public view returns (uint256) {
     return tokenIds.length;
   }
