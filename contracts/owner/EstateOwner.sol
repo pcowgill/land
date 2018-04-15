@@ -52,6 +52,14 @@ contract EstateOwner is ERC721Holder, Ownable {
     return super.onERC721Received(oldOwner, tokenId, "");
   }
 
+  function detectReceived(uint256 tokenId) {
+    require(tokenIds[tokenId] == 0);
+    require(dar.ownerOf(tokenId) == this);
+
+    tokenIds.push(tokenId);
+    index[tokenId] = tokenIds.length;
+  }
+
   function send(
     uint256 tokenId,
     address destinatory
