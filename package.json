@@ -41,6 +41,7 @@
     "mocha": "^3.5.3",
     "npx": "^9.7.1",
     "prettier": "^1.11.1",
+    "solc": "^0.4.22",
     "solidity-sha3": "^0.4.1",
     "truffle": "^4.1.5",
     "truffle-flattener": "^1.2.4",

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.22;
 
 import './MetadataHolder.sol';
 
@@ -20,7 +20,7 @@ contract MetadataHolderBase is MetadataHolder {
     return false;
   }
 
-  function getMetadata(uint256 /* assetId */) external view returns (bytes32) {
-    return 0;
+  function getMetadata(uint256 /* assetId */) external view returns (string) {
+    return '';
   }
 }

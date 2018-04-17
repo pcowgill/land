@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.22;
 
 import '../Storage.sol';
 
@@ -135,26 +135,11 @@ contract LANDRegistry is Storage,
     return (x, y);
   }
 
-  function rawMetadata(uint256 assetId) public view returns (bytes32) {
-    address _owner = ownerOf(assetId);
-    if (_isContract(_owner)) {
-      if (ERC165(_owner).supportsInterface(GET_METADATA)) {
-        return MetadataHolder(_owner).getMetadata(assetId);
-      }
-    }
-    return 0;
-  }
-
   function tokenMetadata(uint256 assetId) public view returns (string) {
     address _owner = ownerOf(assetId);
     if (_isContract(_owner)) {
       if (ERC165(_owner).supportsInterface(GET_METADATA)) {
-        bytes32 metadata = MetadataHolder(_owner).getMetadata(assetId);
-        bytes memory bytesArray = new bytes(32);
-        for (uint256 i; i < 32; i++) {
-          bytesArray[i] = metadata[i];
-        }
-        return string(bytesArray);
+        return MetadataHolder(_owner).getMetadata(assetId);
       }
     }
     return _assetData[assetId];
