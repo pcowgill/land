@@ -12,6 +12,8 @@ import './ILANDRegistry.sol';
 
 import './MetadataHolder.sol';
 
+import '../owner/EstateOwner.sol';
+
 contract LANDRegistry is Storage,
   Ownable, FullAssetRegistry,
   ILANDRegistry
@@ -26,7 +28,7 @@ contract LANDRegistry is Storage,
   }
 
   modifier onlyProxyOwner() {
-    require(msg.sender == proxyOwner);
+    require(msg.sender == proxyOwner, 'this function can only be called by the proxy owner');
     _;
   }
 
@@ -35,12 +37,12 @@ contract LANDRegistry is Storage,
   //
 
   modifier onlyOwnerOf(uint256 assetId) {
-    require(msg.sender == ownerOf(assetId));
+    require(msg.sender == ownerOf(assetId), 'this function can only be called by the owner of the asset');
     _;
   }
 
   modifier onlyUpdateAuthorized(uint256 tokenId) {
-    require(msg.sender == ownerOf(tokenId) || isUpdateAuthorized(msg.sender, tokenId));
+    require(msg.sender == ownerOf(tokenId) || isUpdateAuthorized(msg.sender, tokenId), 'msg.sender is not authorized to update');
     _;
   }
 
@@ -172,6 +174,20 @@ contract LANDRegistry is Storage,
     updateOperator[assetId] = operator;
   }
 
+  // 
+  // Estate generation
+  // 
+
+  function createEstate(int[] x, int[] y, address beneficiary) public returns (address) {
+    require(x.length == y.length);
+
+    EstateOwner estate = new EstateOwner(this, beneficiary);
+
+    transferManyLand(x, y, estate);
+
+    return address(estate);
+  }
+
   //
   // LAND Update
   //
@@ -185,7 +201,7 @@ contract LANDRegistry is Storage,
 
   function updateManyLandData(int[] x, int[] y, string data) public {
     require(x.length > 0);
-    require(x.length == y.length);
+    require(x.length == y.length, 'invalid length (both arrays in updateManyLandData must be of equal length)');
     for (uint i = 0; i < x.length; i++) {
       updateLandData(x[i], y[i], data);
     }

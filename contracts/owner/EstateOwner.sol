@@ -1,7 +1,6 @@
 pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
 import 'erc821/contracts/IERC721Base.sol';
 import 'erc821/contracts/ERC721Holder.sol';
@@ -10,22 +9,37 @@ contract PingableDAR is IERC721Base {
   function ping() public;
 }
 
-contract EstateOwner is ERC721Holder, Ownable {
+contract EstateOwner is ERC721Holder {
   using SafeMath for uint256;
 
   PingableDAR public dar;
 
   string public data;
   address public operator;
+  address public owner;
 
   uint256[] tokenIds;
   uint256[] index;
 
   function EstateOwner(
-    address _dar
-  ) public {
+    address _dar,
+    address _owner
+  )
+    public
+  {
     require(_dar != 0);
     dar = PingableDAR(dar);
+    owner = _owner;
+  }
+
+  modifier onlyOwner() {
+    require(msg.sender == owner);
+    _;
+  }
+
+  function transferOwnership(address to) {
+    require(to != 0);
+    owner = to;
   }
 
   // onERC721Received: Count
@@ -134,7 +148,7 @@ contract EstateOwner is ERC721Holder, Ownable {
   // updateMetadata
 
   modifier onlyUpdateAuthorized() {
-    require(isUpdateAuthorized(msg.sender));
+    require(isUpdateAuthorized(msg.sender), 'unauthorized user');
     _;
   }
 
@@ -157,7 +171,7 @@ contract EstateOwner is ERC721Holder, Ownable {
     return owner == _operator || operator == _operator;
   }
 
-  function ping() public {
+  function ping() onlyUpdateAuthorized public {
     dar.ping();
   }
 }
