@@ -1,15 +1,16 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.22;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
-import 'erc821/contracts/IERC721Base.sol';
-import 'erc821/contracts/ERC721Holder.sol';
+import '../land/MetadataHolderBase.sol';
 
-contract PingableDAR is IERC721Base {
+contract PingableDAR {
   function ping() public;
+  function ownerOf(uint256 tokenId) public returns (address);
+  function safeTransferFrom(address, address, uint256) public;
 }
 
-contract EstateOwner is ERC721Holder {
+contract EstateOwner is MetadataHolderBase  {
   using SafeMath for uint256;
 
   PingableDAR public dar;
@@ -37,7 +38,7 @@ contract EstateOwner is ERC721Holder {
     _;
   }
 
-  function transferOwnership(address to) {
+  function transferOwnership(address to) external {
     require(to != 0);
     owner = to;
   }
@@ -63,10 +64,10 @@ contract EstateOwner is ERC721Holder {
      */
     index[tokenId] = tokenIds.length;
 
-    return super.onERC721Received(oldOwner, tokenId, "");
+    return bytes4(0xf0b9e5ba);
   }
 
-  function detectReceived(uint256 tokenId) {
+  function detectReceived(uint256 tokenId) external {
     require(tokenIds[tokenId] == 0);
     require(dar.ownerOf(tokenId) == address(this));
 
@@ -78,7 +79,7 @@ contract EstateOwner is ERC721Holder {
     uint256 tokenId,
     address destinatory
   )
-    public
+    external
     onlyOwner
   {
     /**
@@ -124,22 +125,22 @@ contract EstateOwner is ERC721Holder {
     }
   }
 
-  function size() public view returns (uint256) {
+  function size() external view returns (uint256) {
     return tokenIds.length;
   }
 
   function updateMetadata(
     string _data
   )
-    public
+    external
     onlyUpdateAuthorized
   {
     data = _data;
   }
 
-  function getMetadata()
+  function getMetadata(uint256 /* assetId */)
     view
-    public
+    external
     returns (string)
   {
     return data;
@@ -148,14 +149,14 @@ contract EstateOwner is ERC721Holder {
   // updateMetadata
 
   modifier onlyUpdateAuthorized() {
-    require(isUpdateAuthorized(msg.sender), 'unauthorized user');
+    require(_isUpdateAuthorized(msg.sender), 'unauthorized user');
     _;
   }
 
   function setUpdateOperator(
     address _operator
   )
-    public
+    external
     onlyOwner
   {
     operator = _operator;
@@ -164,14 +165,24 @@ contract EstateOwner is ERC721Holder {
   function isUpdateAuthorized(
     address _operator
   )
-    public
+    external
+    view
+    returns (bool)
+  {
+    return _isUpdateAuthorized(_operator);
+  }
+
+  function _isUpdateAuthorized(
+    address _operator
+  )
+    internal
     view
     returns (bool)
   {
     return owner == _operator || operator == _operator;
   }
 
-  function ping() onlyUpdateAuthorized public {
+  function ping() onlyUpdateAuthorized external {
     dar.ping();
   }
 }

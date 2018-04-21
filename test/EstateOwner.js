@@ -26,7 +26,7 @@ contract('LANDRegistry', accounts => {
   const _symbol = 'LAND'
 
   const creationParams = {
-    gas: 1e8,
+    gas: 1e6,
     gasPrice: 1e9,
     from: creator
   }
@@ -35,6 +35,10 @@ contract('LANDRegistry', accounts => {
   const sentByCreator = { ...creationParams, from: creator }
 
   describe('workflow full', () => {
+    it('new Estate can be created', async() => {
+      await Estate.new(creator, user, sentByCreator)
+    })
+
     it.only('allows a estate to establish ownership', async () => {
       proxy = await LANDProxy.new(creationParams)
       registry = await LANDRegistry.new(creationParams)
@@ -43,17 +47,23 @@ contract('LANDRegistry', accounts => {
       land = await LANDRegistry.at(proxy.address)
       await land.initialize(creator, sentByCreator)
 
-      await land.assignMultipleParcels([0, 0, 1, 1, -3, -4], [2, -1, 1, -2, 2, 2], user, sentByCreator)
+      await land.assignMultipleParcels(
+        [0, 0, 1, 1, -3, -4],
+        [2, -1, 1, -2, 2, 2],
+        user,
+        sentByCreator
+      )
 
-      const txReceipt = await land.createEstate([0, 1, -3], [2, 1, 2], anotherUser, sentByUser)
+      const txReceipt = await land.createEstate([0, 1, -3], [2, 1, 2], user, sentByUser)
 
       let estateAddr = txReceipt.logs[0].args.to
+      console.log(txReceipt.logs)
       estate = await Estate.at(estateAddr)
 
       console.log('estate size', (await estate.size()).toString())
       const cuca = 'A la grande le puse cuca'
       await estate.updateMetadata(cuca, sentByAnotherUser)
-        console.log('then')
+      console.log('then')
 
       const data = await land.landData(0, 2)
       console.log(data)

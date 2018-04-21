@@ -11,4 +11,6 @@ contract LANDStorage {
   mapping (address => bool) public authorizedDeploy;
 
   mapping (uint256 => address) public updateOperator;
+
+  IEstateFactory public estateFactory;
 }

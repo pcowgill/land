@@ -12,7 +12,9 @@ import './ILANDRegistry.sol';
 
 import './MetadataHolder.sol';
 
-import '../owner/EstateOwner.sol';
+import '../owner/IEstateOwner.sol';
+
+import '../owner/IEstateFactory.sol';
 
 contract LANDRegistry is Storage,
   Ownable, FullAssetRegistry,
@@ -178,12 +180,20 @@ contract LANDRegistry is Storage,
   // Estate generation
   // 
 
+  function setEstateFactory(address factory) onlyProxyOwner external {
+    estateFactory = IEstateFactory(factory);
+  }
+
   function createEstate(int[] x, int[] y, address beneficiary) public returns (address) {
     require(x.length == y.length);
+    require(address(estateFactory) != 0);
 
-    EstateOwner estate = new EstateOwner(this, beneficiary);
+    address estate = estateFactory.buildEstate(this, beneficiary);
 
-    transferManyLand(x, y, estate);
+    for (uint i = 0; i < x.length; i++) {
+      uint256 tokenId = encodeTokenId(x[i], y[i]);
+      _moveToken(ownerOf(tokenId), estate, tokenId, '', this, true);
+    }
 
     return address(estate);
   }
