@@ -45,11 +45,11 @@ contract EstateOwner is MetadataHolderBase  {
 
   // onERC721Received: Count
   function onERC721Received(
-    address oldOwner,
+    address /* oldOwner */,
     uint256 tokenId,
     string // unused
   )
-    public
+    external
     returns (bytes4)
   {
     require(msg.sender == address(dar));
@@ -80,6 +80,15 @@ contract EstateOwner is MetadataHolderBase  {
     address destinatory
   )
     external
+  {
+    return _send(tokenId, destinatory);
+  }
+
+  function _send(
+    uint256 tokenId,
+    address destinatory
+  )
+    internal
     onlyOwner
   {
     /**
@@ -118,10 +127,12 @@ contract EstateOwner is MetadataHolderBase  {
   function transferMany(
     uint256[] tokens,
     address destinatory
-  ) {
+  )
+    external
+  {
     uint length = tokens.length;
     for (uint i = 0; i < length; i++) {
-      this.send(tokens[i], destinatory);
+      _send(tokens[i], destinatory);
     }
   }
 
