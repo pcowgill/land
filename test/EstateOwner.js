@@ -67,10 +67,8 @@ contract('LANDRegistry', accounts => {
       const newMsg = 'new land content'
       await estate.updateMetadata(newMsg, sentByAnotherUser)
 
-      const data = await land.landData(0, 2)
-      data.should.be.equal(newMsg)
-
-      const data = await land.landData(0, 2)
+      const data = await land.landData.call(0, 2)
+        console.log(`data is ${data}`)
       data.should.be.equal(newMsg)
     })
   })

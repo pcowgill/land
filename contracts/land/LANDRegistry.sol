@@ -155,9 +155,10 @@ contract LANDRegistry is Storage,
   }
 
   function tokenMetadata(uint256 assetId) external view returns (string) {
-    return _tokenMetadata(assetId);
+    return _e(assetId);
   }
-  function _tokenMetadata(uint256 assetId) internal view returns (string) {
+
+  function _e(uint256 assetId) internal view returns (string) {
     address _owner = _ownerOf(assetId);
     if (_isContract(_owner)) {
       if (ERC165(_owner).supportsInterface(GET_METADATA)) {
@@ -168,7 +169,7 @@ contract LANDRegistry is Storage,
   }
 
   function landData(int x, int y) external view returns (string) {
-    return _tokenMetadata(_encodeTokenId(x, y));
+    return _e(_encodeTokenId(x, y));
   }
 
   //
