@@ -121,7 +121,7 @@ contract EstateOwner is MetadataHolderBase  {
   ) {
     uint length = tokens.length;
     for (uint i = 0; i < length; i++) {
-      send(tokens[i], destinatory);
+      this.send(tokens[i], destinatory);
     }
   }
 
