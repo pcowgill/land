@@ -29,7 +29,7 @@ contract EstateOwner is MetadataHolderBase  {
     public
   {
     require(_dar != 0);
-    dar = PingableDAR(dar);
+    dar = PingableDAR(_dar);
     owner = _owner;
   }
 

@@ -69,6 +69,9 @@ contract('LANDRegistry', accounts => {
 
       const data = await land.landData(0, 2)
       data.should.be.equal(newMsg)
+
+      const data = await land.landData(0, 2)
+      data.should.be.equal(newMsg)
     })
   })
 })

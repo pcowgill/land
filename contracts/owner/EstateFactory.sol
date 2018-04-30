@@ -15,5 +15,4 @@ contract EstateFactory is IEstateFactory {
         emit EstateCreated(address(estate), dar, beneficiary);
         return address(estate);
     }
-
 }
