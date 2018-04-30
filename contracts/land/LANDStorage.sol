@@ -1,5 +1,7 @@
 pragma solidity ^0.4.18;
 
+import '../owner/IEstateFactory.sol';
+
 contract LANDStorage {
 
   mapping (address => uint) public latestPing;

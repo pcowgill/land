@@ -22,7 +22,7 @@ contract EstateOwner is MetadataHolderBase  {
   uint256[] tokenIds;
   uint256[] index;
 
-  function EstateOwner(
+  constructor(
     address _dar,
     address _owner
   )

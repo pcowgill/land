@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
-import './EstateOwner';
-import './IEstateFactory';
+import './EstateOwner.sol';
+import './IEstateFactory.sol';
 
 contract EstateFactory is IEstateFactory {
 
